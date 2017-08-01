@@ -60,7 +60,6 @@ class System(
   }
 
   def saveData(dataKey: Int, dataValue: Int) = {
-    // FIXME: persist to current cache and all lower level ones!
     println("Saving k=" + dataKey + ", v=" + dataValue)
     val t1 = Instant.now().toEpochMilli()
     l1 += ((dataKey, dataValue))

@@ -79,8 +79,11 @@ abstract class DelayedCache[A,B] extends HashMap[A,(B,Long)] with MapLike[A,(B,L
     import ReplacementPolicy._
     val m: Long = replacementPolicy match {
       case FIFO | LIFO | LRU | MRU => Instant.now().toEpochMilli()
-      case LFU => super.get(kv._1).map(_._2 + 1L).getOrElse(0)
-      case RR => 0L
+      case LFU => super.get(kv._1) match {
+        case Some(v) if (v._1 == kv._2) => v._2 + 1L    /* Did not change; don't touch increment access count */ 
+        case _ => 1L                                    /* Changed, or not present; reset increment access count */
+      }
+      case RR => 1L
     }
     this += ((kv._1, (kv._2, m)))
     m
@@ -173,8 +176,7 @@ class MainMemory[A,B](val replacementPolicy: ReplacementPolicy.Value = Replaceme
     import ReplacementPolicy._
     val m: Long = replacementPolicy match {
       case FIFO | LIFO | LRU | MRU => Instant.now().toEpochMilli()
-      case LFU => super.get(key).map(_._2 + 1L).getOrElse(0)
-      case RR => 0L
+      case LFU | RR => 1L
     }
     (key, (value, m))
   }

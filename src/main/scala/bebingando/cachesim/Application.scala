@@ -49,6 +49,9 @@ object Application {
                             new L3Cache[Int,Int](replacementPolicy = rp)
                           )
 
+    val retrieveStart = Instant.now().toEpochMilli()
+    println("***** Performing Retrievals (1) *****")
+
     (1 until 20).foreach{ sys.requestData(_) }
     println("***** 1 to 20 done *****")
     
@@ -61,9 +64,28 @@ object Application {
     (20 until 80 by 3).foreach{ sys.requestData(_) }
     println("***** 20 to 80 (by 3) done *****")
 
+    println("***** Retrievals took " + (Instant.now().toEpochMilli() - retrieveStart) + " ms using replacement policy + " + rp)
+
 
     def kvAsString(kv: (Int, (Int, Long))): String = "key:" + kv._1 + ", value:" + kv._2._1 + ", marker:" + kv._2._2
 
+    println("L1Cache:")
+    sys.l1.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
+
+    println("L2Cache:")
+    sys.l2.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
+
+    println("L3Cache:")
+    sys.l3.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
+
+    val updateStart = Instant.now().toEpochMilli()
+    println("***** Performing Updates *****")
+    (1 until 40 by 4).foreach{ i => sys.saveData(i, i*2)}
+    println("***** Updates took " + (Instant.now().toEpochMilli() - updateStart) + " ms using replacement policy " + rp)
+    
     println("L1Cache:")
     sys.l1.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
     println("")
