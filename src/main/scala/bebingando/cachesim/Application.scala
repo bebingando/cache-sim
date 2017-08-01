@@ -61,9 +61,20 @@ object Application {
     (20 until 80 by 3).foreach{ sys.requestData(_) }
     println("***** 20 to 80 (by 3) done *****")
 
-    println("L1Cache: " + sys.l1.toList.sortBy(_._1).map(kv => "key:" + kv._1 + "|value:" + kv._2._1 + "|marker:" + kv._2._2).mkString(", "))
-    println("L2Cache: " + sys.l2.toList.sortBy(_._1).map(kv => "key:" + kv._1 + "|value:" + kv._2._1 + "|marker:" + kv._2._2).mkString(", "))
-    println("L3Cache: " + sys.l3.toList.sortBy(_._1).map(kv => "key:" + kv._1 + "|value:" + kv._2._1 + "|marker:" + kv._2._2).mkString(", "))
+
+    def kvAsString(kv: (Int, (Int, Long))): String = "key:" + kv._1 + ", value:" + kv._2._1 + ", marker:" + kv._2._2
+
+    println("L1Cache:")
+    sys.l1.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
+
+    println("L2Cache:")
+    sys.l2.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
+
+    println("L3Cache:")
+    sys.l3.toList.sortBy(_._1).map(kvAsString(_)).foreach(d => println("  " + d))
+    println("")
 
     println("Finish...")
   }

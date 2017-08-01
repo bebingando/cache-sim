@@ -30,7 +30,7 @@ class System(
     println("Requesting " + dataKey)
     val toUpdate: MutableList[Int] = MutableList.empty
     val t1 = Instant.now().toEpochMilli()
-    val vm = l1.get(dataKey) match {
+    val dataValue = l1.get(dataKey) match {
       case Some(vm) => Some(vm._1)
       case None => {
         toUpdate += 1
@@ -49,17 +49,24 @@ class System(
         }
       }
     }
-    println("Took " + (Instant.now().toEpochMilli() - t1) + " ms to get value " + vm)
-    vm.foreach(v => toUpdate.foreach(i => i match {
+    println("Took " + (Instant.now().toEpochMilli() - t1) + " ms to get value " + dataValue)
+    dataValue.foreach(v => toUpdate.foreach(i => i match {
       case 1 => l1 += ((dataKey, v))
       case 2 => l2 += ((dataKey, v))
       case 3 => l3 += ((dataKey, v))
       case _ => println("Nothing to update")
     }))
-    vm
+    dataValue
   }
 
   def saveData(dataKey: Int, dataValue: Int) = {
-    
+    // FIXME: persist to current cache and all lower level ones!
+    println("Saving k=" + dataKey + ", v=" + dataValue)
+    val t1 = Instant.now().toEpochMilli()
+    l1 += ((dataKey, dataValue))
+    l2 += ((dataKey, dataValue))
+    l3 += ((dataKey, dataValue))
+    mem += ((dataKey, dataValue))
+    println("Took " + (Instant.now().toEpochMilli() - t1) + " ms to write back value " + dataValue)
   }
 }

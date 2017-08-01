@@ -122,15 +122,13 @@ abstract class DelayedCache[A,B] extends HashMap[A,(B,Long)] with MapLike[A,(B,L
     replacementPolicy match {
       case LRU | MRU => valueAndMarker.foreach(vm => super.update(key, (vm._1, Instant.now().toEpochMilli())))
       case LFU => valueAndMarker.foreach(vm => super.update(key, (vm._1, vm._2+1)))
-      case FIFO | LIFO | RR => return valueAndMarker
+      case FIFO | LIFO | RR => ()
     }
-    super.get(key) match {
-      case Some(v) => {
-        println(key + " found in " + name + " with value: " + v._1)
-        Some(v)
-      }
-      case None => None
+    valueAndMarker match {
+      case Some(vm) => println("HIT: in " + name + ", found k=" + key + ", v=" + vm._1)
+      case None => println("MISS: in " + name + ", did not find k=" + key)
     }
+    valueAndMarker
   }
 }
 
